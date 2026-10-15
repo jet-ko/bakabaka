@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#dcefe0" />
+<meta name="robots" content="noindex,nofollow" />
+<title>给宝宝的惩罚 ♡</title>
+<style>
+  :root { --ink:#365b60; --brown:#557c77; --aqua:#90c0df; --cream:#c8e4f3; --paper:#e3f3e6; --pink:#f1b5c1; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100svh;
+    background:
+      radial-gradient(circle,#99c3ac 1.1px,transparent 1.4px) 0 0/18px 18px,
+      radial-gradient(ellipse 88% 55% at 52% 31%,#f0fbf4 0%,transparent 76%),
+      linear-gradient(165deg,#d0ead9 0%,#dff1df 50%,#ecf7e5 100%);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Maru Gothic ProN","PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",sans-serif;
+    -webkit-tap-highlight-color:transparent;
+  }
+  button,input,textarea { font:inherit; }
+  .app { width:min(100%,500px); margin:0 auto; padding:clamp(22px,5vh,38px) 16px max(30px,env(safe-area-inset-bottom)); text-align:center; }
+  .top-label { display:inline-flex; gap:7px; align-items:center; border:1.6px solid #a8cbb9; border-radius:999px; background:#f9fffbdf; padding:7px 14px; color:#567969; font-size:11px; letter-spacing:.14em; font-weight:800; }
+  .sparkle { color:#d38ca8; }
+  h1 { margin:17px 0 9px; font-size:clamp(25px,7vw,37px); letter-spacing:.06em; font-weight:900; line-height:1.3; text-shadow:2px 2px 0 #f8fff9; overflow-wrap:anywhere; }
+ 
+  .scene { width:min(100%,455px); aspect-ratio:1; position:relative; margin:3px auto 0; display:grid; place-items:center; }
+  .scene::before { content:""; width:100%; height:100%; position:absolute; inset:0; border-radius:50%; background:radial-gradient(circle,#f7ffff00 59%,#f9f3e775 74%,transparent 75%); pointer-events:none; }
+  .wheel-frame { width:93%; height:93%; border-radius:50%; filter:drop-shadow(0 8px 0 rgba(67,108,106,.17)); overflow:visible; }
+  .wheel-frame{ position:relative; }
+  .wheel-fallback { width:100%; height:100%; display:block; border-radius:50%; }
+  canvas { width:100%; height:100%; display:block; position:absolute; inset:0; border-radius:50%; transform:rotate(0deg); will-change:transform; }
+  .pointer { position:absolute; width:13%; max-width:58px; top:1%; left:50%; transform:translateX(-50%); z-index:6; pointer-events:none; filter:drop-shadow(0 2px 0 #ffffffb8); }
+  .face { z-index:3; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:34%; aspect-ratio:1; border:0; border-radius:50%; background:transparent; padding:0; cursor:pointer; transition:transform .17s ease; }
+  .face:active { transform:translate(-50%,-50%) scale(.95); }
+  .face:focus-visible { outline:3px solid #db8c95; outline-offset:4px; }
+  .face svg { display:block; width:100%; height:100%; filter:drop-shadow(0 3px 1px #78565150); }
+   .mini-star { position:absolute; color:#92aeb7; font-size:18px; }
+  .mini-star.one { left:1%; top:15%; transform:rotate(-18deg); }
+  .mini-star.two { right:0; bottom:17%; transform:rotate(14deg); }
+  .status { min-height:65px; display:flex; align-items:center; justify-content:center; flex-direction:column; margin-top:-7px; gap:3px; }
+  .status-tag { font-size:10px; font-weight:900; letter-spacing:.17em; color:#7199a2; }
+  .status-result { font-size:clamp(16px,5vw,22px); font-weight:900; color:#3b6371; line-height:1.35; overflow-wrap:anywhere; }
+  .status-result.winner { animation: pop .55s cubic-bezier(.18,1.4,.47,1); }
+  @keyframes pop { from{transform:scale(.74);opacity:.4} to{transform:scale(1);opacity:1} }
+  .spin { display:block; width:min(90%,330px); margin:10px auto 0; min-height:57px; border:2px solid #5a8999; border-radius:18px; background:linear-gradient(#bbdfef,#91c3dc); color:#2c5366; box-shadow:0 6px 0 #74a5ba, 0 9px 14px #6d9aa633; font-size:19px; font-weight:900; letter-spacing:.09em; cursor:pointer; touch-action:manipulation; transition:transform .15s,box-shadow .15s; }
+  .spin:active:not(:disabled) { transform:translateY(4px); box-shadow:0 2px 0 #74a5ba; }
+  .spin:disabled { opacity:.7; cursor:wait; }
+  .hint { font-size:11px; margin:13px 0 20px; color:#6d8e80; }
+  .preview-notice { padding:11px 13px; margin:8px 6px 18px; background:#fff8e9; border:1.5px solid #e6cba7; border-radius:12px; color:#956951; font-size:12px; font-weight:700; line-height:1.6; }
+  .editor { margin:0 auto; text-align:left; width:min(100%,430px); background:#f9fffaf2; border:2px solid #accfbe; border-radius:21px; box-shadow:0 5px 0 #accfbd4a; overflow:hidden; }
+  .editor summary { padding:18px 19px; cursor:pointer; list-style:none; user-select:none; font-size:14px; font-weight:900; display:flex; align-items:center; justify-content:space-between; }
+  .editor summary::-webkit-details-marker { display:none; }
+  .editor summary::after { content:'＋'; color:#8f7772; font-size:21px; font-weight:400; line-height:1; }
+  .editor[open] summary::after { content:'−'; }
+  .edit-body { border-top:1px dashed #b4cfbd; padding:16px 19px 19px; }
+  label { display:block; font-size:12px; margin:0 0 7px; font-weight:900; }
+  input,textarea { width:100%; padding:11px 12px; border:1.7px solid #adcac3; border-radius:11px; background:#fff; color:var(--ink); outline:none; font-size:14px; }
+  input:focus,textarea:focus { border-color:#d896a0; box-shadow:0 0 0 3px #f9e7ea; }
+  textarea { min-height:188px; resize:vertical; line-height:1.65; }
+  .field { margin-bottom:13px; }
+  .edit-note { color:#907e78; font-size:11px; line-height:1.65; margin:7px 0 13px; }
+  .edit-actions { display:flex; gap:8px; }
+  .save, .reset { min-height:43px; border-radius:11px; font-size:13px; font-weight:900; cursor:pointer; }
+  .save { flex:1; color:#ffffff; background:#6eaaa9; border:1.5px solid #598e8d; }
+  .reset { padding:0 13px; background:#fffaf0; border:1.5px solid #cfb4a3; color:#856c63; }
+  .edit-error { color:#bc5665; font-size:12px; line-height:1.4; min-height:16px; margin-top:9px; }
+  .footer { margin-top:21px; font-size:10px; color:#7ba090; letter-spacing:.04em; }
+  @media(prefers-reduced-motion:reduce){.status-result.winner{animation:none}}
+  @media(max-width:360px){.app{padding-left:8px;padding-right:8px}.scene{width:100%}.status{margin-top:-3px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="top-label"><span class="sparkle">✦</span> LITTLE PUNISH ROULETTE <span class="sparkle">✦</span></div>
+  <h1 id="pageTitle">给宝宝的惩罚</h1>
+
+  <section class="scene" aria-label="可转动的惩罚转盘">
+    <span class="mini-star one">✧</span><span class="mini-star two">✦</span>
+    <div class="wheel-frame"><svg class="wheel-fallback" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 760" role="img" aria-label="包含18个选项的转盘">
+<circle cx="380" cy="380" r="372" fill="#93bfd7" stroke="#587d90" stroke-width="6"/>
+<circle cx="380" cy="380" r="356" fill="#edf7fa" stroke="#587d90" stroke-width="3"/>
+<path d="M380 380 L319.40 36.30 A349 349 0 0 1 440.60 36.30 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(0.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">一周不</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="50" lengthAdjust="spacingAndGlyphs">视频</text>
+</g>
+<path d="M380 380 L440.60 36.30 A349 349 0 0 1 554.50 77.76 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(20.0000 380 380)">
+<text x="380" y="121.74" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">说爱我</text>
+</g>
+<path d="M380 380 L554.50 77.76 A349 349 0 0 1 647.35 155.67 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(40.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">送小蛋</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="25" lengthAdjust="spacingAndGlyphs">糕</text>
+</g>
+<path d="M380 380 L647.35 155.67 A349 349 0 0 1 707.95 260.63 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(60.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">转52</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="25" lengthAdjust="spacingAndGlyphs">元</text>
+</g>
+<path d="M380 380 L707.95 260.63 A349 349 0 0 1 729.00 380.00 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(80.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">写道歉</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="25" lengthAdjust="spacingAndGlyphs">信</text>
+</g>
+<path d="M380 380 L729.00 380.00 A349 349 0 0 1 707.95 499.37 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(100.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">十个优</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="25" lengthAdjust="spacingAndGlyphs">点</text>
+</g>
+<path d="M380 380 L707.95 499.37 A349 349 0 0 1 647.35 604.33 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(120.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">答应一</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="50" lengthAdjust="spacingAndGlyphs">件事</text>
+</g>
+<path d="M380 380 L647.35 604.33 A349 349 0 0 1 554.50 682.24 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(140.0000 380 380)">
+<text x="380" y="121.74" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">送吃的</text>
+</g>
+<path d="M380 380 L554.50 682.24 A349 349 0 0 1 440.60 723.70 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(160.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">再转一</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="25" lengthAdjust="spacingAndGlyphs">次</text>
+</g>
+<path d="M380 380 L440.60 723.70 A349 349 0 0 1 319.40 723.70 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(180.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">一个月</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">全答应</text>
+</g>
+<path d="M380 380 L319.40 723.70 A349 349 0 0 1 205.50 682.24 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(200.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">按摩2</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">0分钟</text>
+</g>
+<path d="M380 380 L205.50 682.24 A349 349 0 0 1 112.65 604.33 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(220.0000 380 380)">
+<text x="380" y="121.74" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">亲三次</text>
+</g>
+<path d="M380 380 L112.65 604.33 A349 349 0 0 1 52.05 499.37 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(240.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">12点</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">前睡觉</text>
+</g>
+<path d="M380 380 L52.05 499.37 A349 349 0 0 1 31.00 380.00 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(260.0000 380 380)">
+<text x="380" y="121.74" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">买口红</text>
+</g>
+<path d="M380 380 L31.00 380.00 A349 349 0 0 1 52.05 260.63 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(280.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">买护肤</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="25" lengthAdjust="spacingAndGlyphs">品</text>
+</g>
+<path d="M380 380 L52.05 260.63 A349 349 0 0 1 112.65 155.67 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(300.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">送12</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="50" lengthAdjust="spacingAndGlyphs">瓶水</text>
+</g>
+<path d="M380 380 L112.65 155.67 A349 349 0 0 1 205.50 77.76 Z" fill="#c8e4f3" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(320.0000 380 380)">
+<text x="380" y="107.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">旅游帮</text>
+<text x="380" y="138.78" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="50" lengthAdjust="spacingAndGlyphs">拿包</text>
+</g>
+<path d="M380 380 L205.50 77.76 A349 349 0 0 1 319.40 36.30 Z" fill="#90c0df" stroke="#65899d" stroke-width="2.5"/>
+<g transform="rotate(340.0000 380 380)">
+<text x="380" y="86.84" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">见面第</text>
+<text x="380" y="117.84" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="75" lengthAdjust="spacingAndGlyphs">一天乖</text>
+<text x="380" y="148.84" text-anchor="middle" dominant-baseline="middle" fill="#34596a" font-size="25" font-weight="750" font-family="-apple-system,PingFang SC,Noto Sans CJK SC,sans-serif" textLength="25" lengthAdjust="spacingAndGlyphs">乖</text>
+</g>
+<circle cx="744.00" cy="380.00" r="2.3" fill="#f7ffff"/>
+<circle cx="742.61" cy="411.72" r="1.35" fill="#6c9aae"/>
+<circle cx="738.47" cy="443.21" r="1.35" fill="#6c9aae"/>
+<circle cx="731.60" cy="474.21" r="2.3" fill="#f7ffff"/>
+<circle cx="722.05" cy="504.50" r="1.35" fill="#6c9aae"/>
+<circle cx="709.90" cy="533.83" r="1.35" fill="#6c9aae"/>
+<circle cx="695.23" cy="562.00" r="2.3" fill="#f7ffff"/>
+<circle cx="678.17" cy="588.78" r="1.35" fill="#6c9aae"/>
+<circle cx="658.84" cy="613.97" r="1.35" fill="#6c9aae"/>
+<circle cx="637.39" cy="637.39" r="2.3" fill="#f7ffff"/>
+<circle cx="613.97" cy="658.84" r="1.35" fill="#6c9aae"/>
+<circle cx="588.78" cy="678.17" r="1.35" fill="#6c9aae"/>
+<circle cx="562.00" cy="695.23" r="2.3" fill="#f7ffff"/>
+<circle cx="533.83" cy="709.90" r="1.35" fill="#6c9aae"/>
+<circle cx="504.50" cy="722.05" r="1.35" fill="#6c9aae"/>
+<circle cx="474.21" cy="731.60" r="2.3" fill="#f7ffff"/>
+<circle cx="443.21" cy="738.47" r="1.35" fill="#6c9aae"/>
+<circle cx="411.72" cy="742.61" r="1.35" fill="#6c9aae"/>
+<circle cx="380.00" cy="744.00" r="2.3" fill="#f7ffff"/>
+<circle cx="348.28" cy="742.61" r="1.35" fill="#6c9aae"/>
+<circle cx="316.79" cy="738.47" r="1.35" fill="#6c9aae"/>
+<circle cx="285.79" cy="731.60" r="2.3" fill="#f7ffff"/>
+<circle cx="255.50" cy="722.05" r="1.35" fill="#6c9aae"/>
+<circle cx="226.17" cy="709.90" r="1.35" fill="#6c9aae"/>
+<circle cx="198.00" cy="695.23" r="2.3" fill="#f7ffff"/>
+<circle cx="171.22" cy="678.17" r="1.35" fill="#6c9aae"/>
+<circle cx="146.03" cy="658.84" r="1.35" fill="#6c9aae"/>
+<circle cx="122.61" cy="637.39" r="2.3" fill="#f7ffff"/>
+<circle cx="101.16" cy="613.97" r="1.35" fill="#6c9aae"/>
+<circle cx="81.83" cy="588.78" r="1.35" fill="#6c9aae"/>
+<circle cx="64.77" cy="562.00" r="2.3" fill="#f7ffff"/>
+<circle cx="50.10" cy="533.83" r="1.35" fill="#6c9aae"/>
+<circle cx="37.95" cy="504.50" r="1.35" fill="#6c9aae"/>
+<circle cx="28.40" cy="474.21" r="2.3" fill="#f7ffff"/>
+<circle cx="21.53" cy="443.21" r="1.35" fill="#6c9aae"/>
+<circle cx="17.39" cy="411.72" r="1.35" fill="#6c9aae"/>
+<circle cx="16.00" cy="380.00" r="2.3" fill="#f7ffff"/>
+<circle cx="17.39" cy="348.28" r="1.35" fill="#6c9aae"/>
+<circle cx="21.53" cy="316.79" r="1.35" fill="#6c9aae"/>
+<circle cx="28.40" cy="285.79" r="2.3" fill="#f7ffff"/>
+<circle cx="37.95" cy="255.50" r="1.35" fill="#6c9aae"/>
+<circle cx="50.10" cy="226.17" r="1.35" fill="#6c9aae"/>
+<circle cx="64.77" cy="198.00" r="2.3" fill="#f7ffff"/>
+<circle cx="81.83" cy="171.22" r="1.35" fill="#6c9aae"/>
+<circle cx="101.16" cy="146.03" r="1.35" fill="#6c9aae"/>
+<circle cx="122.61" cy="122.61" r="2.3" fill="#f7ffff"/>
+<circle cx="146.03" cy="101.16" r="1.35" fill="#6c9aae"/>
+<circle cx="171.22" cy="81.83" r="1.35" fill="#6c9aae"/>
+<circle cx="198.00" cy="64.77" r="2.3" fill="#f7ffff"/>
+<circle cx="226.17" cy="50.10" r="1.35" fill="#6c9aae"/>
+<circle cx="255.50" cy="37.95" r="1.35" fill="#6c9aae"/>
+<circle cx="285.79" cy="28.40" r="2.3" fill="#f7ffff"/>
+<circle cx="316.79" cy="21.53" r="1.35" fill="#6c9aae"/>
+<circle cx="348.28" cy="17.39" r="1.35" fill="#6c9aae"/>
+<circle cx="380.00" cy="16.00" r="2.3" fill="#f7ffff"/>
+<circle cx="411.72" cy="17.39" r="1.35" fill="#6c9aae"/>
+<circle cx="443.21" cy="21.53" r="1.35" fill="#6c9aae"/>
+<circle cx="474.21" cy="28.40" r="2.3" fill="#f7ffff"/>
+<circle cx="504.50" cy="37.95" r="1.35" fill="#6c9aae"/>
+<circle cx="533.83" cy="50.10" r="1.35" fill="#6c9aae"/>
+<circle cx="562.00" cy="64.77" r="2.3" fill="#f7ffff"/>
+<circle cx="588.78" cy="81.83" r="1.35" fill="#6c9aae"/>
+<circle cx="613.97" cy="101.16" r="1.35" fill="#6c9aae"/>
+<circle cx="637.39" cy="122.61" r="2.3" fill="#f7ffff"/>
+<circle cx="658.84" cy="146.03" r="1.35" fill="#6c9aae"/>
+<circle cx="678.17" cy="171.22" r="1.35" fill="#6c9aae"/>
+<circle cx="695.23" cy="198.00" r="2.3" fill="#f7ffff"/>
+<circle cx="709.90" cy="226.17" r="1.35" fill="#6c9aae"/>
+<circle cx="722.05" cy="255.50" r="1.35" fill="#6c9aae"/>
+<circle cx="731.60" cy="285.79" r="2.3" fill="#f7ffff"/>
+<circle cx="738.47" cy="316.79" r="1.35" fill="#6c9aae"/>
+<circle cx="742.61" cy="348.28" r="1.35" fill="#6c9aae"/>
+<circle cx="380" cy="380" r="349" fill="none" stroke="#65899d" stroke-width="3"/>
+</svg><canvas id="wheel" width="760" height="760" role="img" aria-label="有18个惩罚选项的转盘"></canvas></div>
+    <button type="button" class="face" id="faceSpin" aria-label="点击中间的小狗来转动转盘">
+      <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M46 111 Q42 122 50 132 L108 132 Q117 124 111 111" fill="#d7e9e8" stroke="#79544c" stroke-width="3" />
+        <path d="M52 125 Q80 134 107 125 M53 118 Q80 126 106 118" fill="none" stroke="#79544c" stroke-width="2.5" stroke-linecap="round" />
+        <ellipse cx="37" cy="77" rx="26" ry="35" fill="#70504c" stroke="#644742" stroke-width="2.5" transform="rotate(12 37 77)"/>
+        <ellipse cx="125" cy="77" rx="26" ry="35" fill="#70504c" stroke="#644742" stroke-width="2.5" transform="rotate(-12 125 77)"/>
+        <path d="M40 49 Q47 32 80 32 Q113 32 120 49 L123 105 Q121 123 104 126 L55 126 Q39 122 37 105Z" fill="#b6daeb" stroke="#745650" stroke-width="3"/>
+        <rect x="52" y="57" width="56" height="53" rx="21" fill="#fffaf3" stroke="#7c615b" stroke-width="2" />
+        <ellipse cx="67" cy="75" rx="3.5" ry="4.7" fill="#79554f"/><ellipse cx="93" cy="75" rx="3.5" ry="4.7" fill="#79554f"/>
+        <path d="M68 88 Q80 83 92 88 Q100 91 96 97 Q80 106 65 97 Q61 91 68 88Z" fill="#6e4e4b"/>
+        <path d="M78 102 Q81 108 84 102" fill="none" stroke="#6e4e4b" stroke-width="2.5" stroke-linecap="round" />
+        <ellipse cx="59" cy="91" rx="4" ry="2.5" fill="#f4bdbe" opacity=".65" /><ellipse cx="101" cy="91" rx="4" ry="2.5" fill="#f4bdbe" opacity=".65"/>
+        <path d="M75 36 Q76 22 81 26 Q88 29 84 36" fill="#f8b3b2" stroke="#76554e" stroke-width="2"/>
+      </svg>
+    </button>
+    <svg class="pointer" viewBox="0 0 68 76" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M34 67 L15 32 Q12 26 19 25 L49 25 Q56 26 53 32Z" fill="#f2b5c1" stroke="#795751" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M34 67 L25 34 L43 34Z" fill="#ecf8e7" stroke="#795751" stroke-width="2"/>
+      <path d="M26 23 Q20 18 23 11 Q29 6 35 13 Q41 6 47 11 Q50 18 43 23Z" fill="#fffaf5" stroke="#795751" stroke-width="3"/>
+      <circle cx="34" cy="19" r="3" fill="#dc9b96"/>
+    </svg>
+  </section>
+
+  <div class="status" role="status" aria-live="polite" aria-atomic="true">
+    <span class="status-tag" id="statusTag">READY TO SPIN</span>
+    <span class="status-result" id="result">点中间的小狗也能转哦 ♡</span>
+  </div>
+  <button class="spin" id="spin" type="button">开始转转 ✦</button>
+  <p class="hint">每次都是随机抽取，结果会显示完整内容 ♡</p>
+  <p id="previewNotice" class="preview-notice">⚠️ 当前是静态文件预览，不能旋转哦。请将网页上传后在 Safari 中打开，即可正常使用 ♡</p>
+
+  <details class="editor" id="editor">
+    <summary>✎ 编辑转盘内容</summary>
+    <div class="edit-body">
+      <div class="field"><label for="titleInput">标题</label><input id="titleInput" type="text" maxlength="40" value="给宝宝的惩罚" /></div>
+      <div class="field"><label for="optionsInput">选项（每行一个）</label><textarea id="optionsInput" spellcheck="false">一星期不可以视频
+说你爱我
+买小蛋糕送到我家
+转款52rmb
+写道歉信
+说出我的十个优点
+答应我一件事
+买吃的送到我家
+再转一次
+一个月内不管我说什么你都要答应
+下次见面的时候按摩20分钟
+亲我三次
+12点前上床睡觉（不接受任何理由）
+买一只口红
+买一个护肤品
+买12瓶1.5L的水送到我家
+下次旅游的时候全程帮我拿包包
+下次见面第一天不可以干坏事</textarea>
+        <p class="edit-note">可设置2～24项。转盘上的长句会简写，抽中后会显示完整原文。</p></div>
+      <div class="edit-actions"><button type="button" class="save" id="save">保存修改 ♡</button><button type="button" class="reset" id="reset">恢复默认</button></div>
+      <div class="edit-error" id="error" aria-live="polite"></div>
+    </div>
+  </details>
+  <p class="footer">♡ 独立网页 · 修改的内容会保存在此设备 ♡</p>
+</main>
+<script>
+(() => {
+  'use strict';
+  const DEFAULT_TITLE = '给宝宝的惩罚';
+  const DEFAULT_OPTIONS = [
+    '一星期不可以视频',
+    '说你爱我',
+    '买小蛋糕送到我家',
+    '转款52rmb',
+    '写道歉信',
+    '说出我的十个优点',
+    '答应我一件事',
+    '买吃的送到我家',
+    '再转一次',
+    '一个月内不管我说什么你都要答应',
+    '下次见面的时候按摩20分钟',
+    '亲我三次',
+    '12点前上床睡觉（不接受任何理由）',
+    '买一只口红',
+    '买一个护肤品',
+    '买12瓶1.5L的水送到我家',
+    '下次旅游的时候全程帮我拿包包',
+    '下次见面第一天不可以干坏事'
+  ];
+  // Short labels only for the wheel. The full original wording is shown in the result.
+  const WHEEL_LABELS = new Map([
+    ['一星期不可以视频','一周不视频'],
+    ['说你爱我','说爱我'],
+    ['买小蛋糕送到我家','送小蛋糕'],
+    ['转款52rmb','转52元'],
+    ['写道歉信','写道歉信'],
+    ['说出我的十个优点','十个优点'],
+    ['答应我一件事','答应一件事'],
+    ['买吃的送到我家','送吃的'],
+    ['再转一次','再转一次'],
+    ['一个月内不管我说什么你都要答应','一个月全答应'],
+    ['下次见面的时候按摩20分钟','按摩20分钟'],
+    ['亲我三次','亲三次'],
+    ['12点前上床睡觉（不接受任何理由）','12点前睡觉'],
+    ['买一只口红','买口红'],
+    ['买一个护肤品','买护肤品'],
+    ['买12瓶1.5L的水送到我家','送12瓶水'],
+    ['下次旅游的时候全程帮我拿包包','旅游帮拿包'],
+    ['下次见面第一天不可以干坏事','见面第一天乖乖']
+  ]);
+  const $ = (id) => document.getElementById(id);
+  const wheel = $('wheel'); const ctx = wheel.getContext('2d');
+  let items = [...DEFAULT_OPTIONS], title = DEFAULT_TITLE;
+  let rotation = 0, spinning = false, selected = -1;
+  let currentSpinCleanup = null, spinRunId = 0;
+  const step = () => 360 / items.length;
+  const mod = (x, n) => (x % n + n) % n;
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('kawaii-roulette-baobao-v1') || 'null');
+      if (saved && typeof saved.title === 'string' && Array.isArray(saved.items) && saved.items.length >= 2 && saved.items.length <= 24 && saved.items.every(x=>typeof x === 'string')) {
+        title = saved.title || DEFAULT_TITLE; items = saved.items;
+      }
+    } catch (_) { /* storage may be disabled in file previews */ }
+  }
+  function persist() {
+    try { localStorage.setItem('kawaii-roulette-baobao-v1', JSON.stringify({title,items})); } catch (_) {}
+  }
+  function wrap(text, maxChars=3, maxLines=3) {
+    const clean = text.trim().replace(/\s+/g,' ');
+    const chars = Array.from(clean); const lines=[];
+    while(chars.length && lines.length < maxLines) lines.push(chars.splice(0,maxChars).join(''));
+    if(chars.length) lines[lines.length - 1] = Array.from(lines[lines.length-1]).slice(0,Math.max(1,maxChars-1)).join('') + '…';
+    return lines;
+  }
+  function drawWheel() {
+    if (!ctx) return;
+    const W=760, C=380, R=375, innerR=349;
+    ctx.clearRect(0,0,W,W);
+    ctx.save(); ctx.translate(C,C);
+    ctx.beginPath(); ctx.arc(0,0,R-2,0,2*Math.PI); ctx.fillStyle='#93bfd7'; ctx.fill(); ctx.lineWidth=5; ctx.strokeStyle='#587d90'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,0,innerR+7,0,Math.PI*2); ctx.fillStyle='#edf7fa'; ctx.fill(); ctx.lineWidth=2.6;ctx.strokeStyle='#648c9e';ctx.stroke();
+    const slice = 2*Math.PI/items.length;
+    for(let i=0;i<items.length;i++) {
+      let a=-Math.PI/2+(i-.5)*slice, b=a+slice;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,innerR,a,b); ctx.closePath();
+      ctx.fillStyle= i%2===0?'#c8e4f3':'#90c0df'; ctx.fill(); ctx.lineWidth=2.5;ctx.strokeStyle='#65899d';ctx.stroke();
+      ctx.save();
+      ctx.rotate(-Math.PI/2+i*slice+Math.PI/2);
+      let chars = items.length >= 21?2:items.length>=15?3:items.length>=10?4:5;
+      let lines = wrap(WHEEL_LABELS.get(items[i]) || items[i], chars, 3);
+      let size = items.length>=22?22:items.length>=17?25:items.length>=12?28:32;
+      ctx.fillStyle='#34596a'; ctx.font=`bold ${size}px -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      const maxWidth=items.length>=20?62:items.length>=16?78:items.length>=12?95:125;
+      const start= innerR*(lines.length===1?.74:lines.length===2?.78:.84);
+      lines.forEach((line, lineIndex) => {
+        ctx.fillText(line,0,-start+lineIndex*(size+6),maxWidth);
+      });
+      ctx.restore();
+    }
+    // A little stitched pattern around the outer ring.
+    for(let i=0;i<72;i++) {
+      let a=i*2*Math.PI/72; let r=364;
+      ctx.save(); ctx.translate(Math.cos(a)*r,Math.sin(a)*r);
+      ctx.rotate(a);
+      ctx.fillStyle= i%3===0?'#f7ffff':'#6c9aae';
+      ctx.beginPath(); ctx.arc(0,0,i%3===0?2.3:1.35,0,2*Math.PI);ctx.fill();ctx.restore();
+    }
+    ctx.beginPath();ctx.arc(0,0,innerR,0,Math.PI*2);ctx.lineWidth=3.1;ctx.strokeStyle='#65899d';ctx.stroke();
+    ctx.restore();
+    wheel.setAttribute('aria-label',`包含${items.length}个选项的转盘`);
+  }
+  function setResult(tag, message, isWinner=false) {
+    $('statusTag').textContent=tag;
+    const el=$('result');el.classList.remove('winner');void el.offsetWidth;el.textContent=message;
+    if(isWinner) el.classList.add('winner');
+  }
+  function setEnabled(enabled) {
+    $('spin').disabled = !enabled; $('save').disabled = !enabled; $('reset').disabled=!enabled; $('faceSpin').disabled=!enabled;
+  }
+  function finishSpin(index) {
+    if(!spinning)return;
+    spinning=false;selected=index;setEnabled(true);
+    if(currentSpinCleanup) { currentSpinCleanup(); currentSpinCleanup = null; }
+    wheel.style.transition='none'; rotation=mod(rotation,360);
+    wheel.style.transform=`rotate(${rotation}deg)`;
+    setResult('✦ 抽中啦 ✦',items[index],true);
+    $('spin').textContent='再转一次 ↻';
+    try { if(navigator.vibrate)navigator.vibrate([35,30,45]); } catch (_) {}
+  }
+  function spin() {
+    if(spinning || items.length<2)return;
+    spinning=true;setEnabled(false);
+    const run = ++spinRunId;
+    $('spin').textContent='转动中…';setResult('转动中…','');
+    let chosen=Math.floor(Math.random()*items.length);
+    const jitter=(Math.random()-.5)*step()*.46;
+    const desired=mod(-chosen*step()+jitter,360);
+    const additional=mod(desired-mod(rotation,360),360);
+    const turns=6+Math.floor(Math.random()*3);
+    rotation += 360*turns+additional;
+    const duration=4800+Math.floor(Math.random()*500);
+    wheel.style.transition=`transform ${duration}ms cubic-bezier(.10,.75,.12,1)`;
+    requestAnimationFrame(() => requestAnimationFrame(() => { wheel.style.transform=`rotate(${rotation}deg)`; }));
+    // Timeout handles browsers that do not dispatch transitionend in background tabs.
+    const finish=()=>{ if(spinRunId===run) finishSpin(chosen); };
+    const handler=(e)=>{ if(e.propertyName==='transform') finish(); };
+    wheel.addEventListener('transitionend',handler);
+    const timer=setTimeout(finish,duration+200);
+    currentSpinCleanup=()=>{wheel.removeEventListener('transitionend',handler);clearTimeout(timer);};
+  }
+  function update() {
+    if(spinning)return;
+    const newTitle=$('titleInput').value.trim() || '我的转盘';
+    const newItems=$('optionsInput').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    if(newItems.length<2||newItems.length>24){$('error').textContent='请设置2～24个选项。';return;}
+    if(newItems.some(x=>Array.from(x).length>50)){$('error').textContent='每个选项请不要超过50个字。';return;}
+    title=newTitle;items=newItems;rotation=0;selected=-1;
+    $('pageTitle').textContent=title;
+    wheel.style.transition='none';wheel.style.transform='rotate(0deg)';drawWheel();persist();
+    $('error').textContent='保存成功 ♡';setResult('READY TO SPIN','已经更新好啦 ♡');
+    $('spin').textContent='开始转转 ✦';$('editor').open=false;
+  }
+  function reset() {
+    if(spinning)return;
+    $('titleInput').value=DEFAULT_TITLE; $('optionsInput').value=DEFAULT_OPTIONS.join('\n'); update();
+  }
+  load();drawWheel();$('pageTitle').textContent=title;
+  document.querySelector('.wheel-fallback').style.display='none';
+  $('previewNotice').style.display='none';
+  $('titleInput').value=title;$('optionsInput').value=items.join('\n');
+  $('spin').addEventListener('click',spin);$('faceSpin').addEventListener('click',spin);
+  $('save').addEventListener('click',update);$('reset').addEventListener('click',reset);
+})();
+</script>
+</body>
+</html>
